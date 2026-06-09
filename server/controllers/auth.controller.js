@@ -153,7 +153,6 @@ router.post("/register", async (req, res) => {
   }
 });
 
-
 router.get("/me", protect, (req, res) => {
   return res.json({
     ok: true,

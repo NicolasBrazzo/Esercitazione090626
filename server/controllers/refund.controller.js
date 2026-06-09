@@ -15,30 +15,26 @@ const router = express.Router();
 
 const VALID_STATUSES = ["in_attesa", "approvata", "rifiutata", "liquidata"];
 
-// L'utente autenticato è amministratore?
 const isAdmin = (req) => !!req.user?.isAdmin;
 
-// Estrae il nome leggibile di una categoria (colonna non nota a priori)
-const categoryLabel = (cat) =>
-  cat?.description ?? cat?.descrizione ?? cat?.name ?? cat?.nome ?? null;
+// Estrae il nome leggibile di una categoria
+const categoryLabel = (cat) => cat?.name ?? null;
 
-// Aggiunge category_name ed employee_name alle richieste
+// Aggiunge a ogni richiesta il nome della categoria e del dipendente
 const enrichRequests = async (requests) => {
-  const [categories, users] = await Promise.all([
-    findAllExpenseCategories(),
-    findAllUsers(),
-  ]);
+  const categories = await findAllExpenseCategories();
+  const users = await findAllUsers();
 
-  const categoryMap = new Map(categories.map((c) => [c.id, categoryLabel(c)]));
-  const userMap = new Map(
-    users.map((u) => [u.id, `${u.name ?? ""} ${u.surname ?? ""}`.trim()])
-  );
+  return requests.map((r) => {
+    const category = categories.find((c) => c.id === r.category_id);
+    const employee = users.find((u) => u.id === r.employee_id);
 
-  return requests.map((r) => ({
-    ...r,
-    category_name: categoryMap.get(r.category_id) ?? null,
-    employee_name: userMap.get(r.employee_id) ?? null,
-  }));
+    return {
+      ...r,
+      category_name: category ? category.name : null,
+      employee_name: employee ? `${employee.name} ${employee.surname}` : null,
+    };
+  });
 };
 
 // Validazione dei campi di una richiesta (POST/PUT)
@@ -125,7 +121,7 @@ router.get("/", protect, async (req, res) => {
     return res.status(200).json({ ok: true, requests: enriched });
   } catch (err) {
     console.error("GET ALL REFUND REQUESTS ERROR:", err);
-    return res.status(500).json({ ok: false, error: `DEBUG: ${err.message}` });
+    return res.status(500).json({ ok: false, error: "Errore interno del server" });
   }
 });
 

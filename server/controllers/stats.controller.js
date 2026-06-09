@@ -9,9 +9,8 @@ const router = express.Router();
 // L'utente autenticato è amministratore?
 const isAdmin = (req) => !!req.user?.isAdmin;
 
-// Estrae il nome leggibile di una categoria (colonna non nota a priori)
-const categoryLabel = (cat) =>
-  cat?.description ?? cat?.descrizione ?? cat?.name ?? cat?.nome ?? null;
+// Estrae il nome leggibile di una categoria
+const categoryLabel = (cat) => cat?.name ?? null;
 
 // Stati che, ai fini delle statistiche, contano come "approvati".
 // Una richiesta liquidata è stata necessariamente approvata in precedenza,
