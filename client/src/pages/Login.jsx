@@ -6,6 +6,7 @@ import Loader from "../components/Loader";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import ColorBends from "../components/ColorBends";
 
 export const Login = () => {
   const [email, setEmail] = useState("");
@@ -42,7 +43,24 @@ export const Login = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4">
+    <div className="relative min-h-screen flex items-center justify-center bg-muted/30 px-4 overflow-hidden">
+      <div className="absolute inset-0 -z-10">
+        <ColorBends
+          colors={["#ff5c7a", "#8a5cff", "#00ffd1"]}
+          rotation={90}
+          speed={0.2}
+          scale={1}
+          frequency={1}
+          warpStrength={1}
+          mouseInfluence={1}
+          noise={0.15}
+          parallax={0.5}
+          iterations={1}
+          intensity={1.5}
+          bandWidth={6}
+          transparent
+        />
+      </div>
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center space-y-2">
           <h1 className="text-2xl font-semibold tracking-tight">Rimborso Spese Aziendali</h1>

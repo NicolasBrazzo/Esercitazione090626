@@ -25,11 +25,14 @@ const round2 = (n) => Math.round((n + Number.EPSILON) * 100) / 100;
 // Estrae il mese (YYYY-MM) da una data
 const monthOf = (date) => (date ? String(date).slice(0, 7) : null);
 
+// Estrae il solo mese (MM) da una data, indipendentemente dall'anno
+const monthNumOf = (date) => (date ? String(date).slice(5, 7) : null);
+
 // GET / - riepilogo aggregato delle richieste di rimborso per mese e categoria.
 // Riservato ai responsabili amministrativi.
 //
 // Filtri supportati (query string):
-//   - mese       (YYYY-MM)        es. ?mese=2026-05
+//   - mese       (MM)             es. ?mese=05  (filtra per mese, qualunque anno)
 //   - from / to  (YYYY-MM-DD)     periodo sulla data della spesa (alternativa a mese)
 //   - category_id  (alias: categoriaId)
 //   - employee_id  (alias: dipendenteId)
@@ -56,11 +59,11 @@ router.get("/rimborsi", protect, async (req, res) => {
     const category_id = req.query.category_id ?? req.query.categoriaId;
     const employee_id = req.query.employee_id ?? req.query.dipendenteId;
 
-    // Validazione del formato del mese, se fornito
-    if (mese && !/^\d{4}-\d{2}$/.test(mese)) {
+    // Validazione del formato del mese, se fornito (solo mese: MM, 01-12)
+    if (mese && !/^(0[1-9]|1[0-2])$/.test(mese)) {
       return res.status(400).json({
         ok: false,
-        error: "Il parametro 'mese' deve essere nel formato YYYY-MM",
+        error: "Il parametro 'mese' deve essere nel formato MM (01-12)",
       });
     }
 
@@ -76,7 +79,7 @@ router.get("/rimborsi", protect, async (req, res) => {
       requests = requests.filter((r) => {
         if (!r.expense_date) return false;
         const day = String(r.expense_date).slice(0, 10);
-        if (mese && monthOf(r.expense_date) !== mese) return false;
+        if (mese && monthNumOf(r.expense_date) !== mese) return false;
         if (from && day < from) return false;
         if (to && day > to) return false;
         return true;
