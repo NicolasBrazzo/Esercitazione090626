@@ -98,10 +98,10 @@ router.get("/", protect, async (req, res) => {
 
     let requests = await findAllRefoundRequests(filters);
 
-    // Filtro per mese (YYYY-MM) sulla data della spesa
+    // Filtro per mese (MM) sulla data della spesa, indipendentemente dall'anno
     if (mese) {
       requests = requests.filter(
-        (r) => r.expense_date && String(r.expense_date).slice(0, 7) === mese
+        (r) => r.expense_date && String(r.expense_date).slice(5, 7) === mese
       );
     }
 

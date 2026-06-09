@@ -35,11 +35,11 @@ import {
 import { fetchCategories } from "../services/categoriesService";
 import { MONTH_NAMES } from "../constants";
 
-// Option dei 12 mesi dell'anno corrente nel formato richiesto dal backend (YYYY-MM)
-const CURRENT_YEAR = new Date().getFullYear();
+// Option dei 12 mesi nel formato richiesto dal backend (MM): il filtro è per mese,
+// indipendentemente dall'anno.
 const MONTH_OPTIONS = MONTH_NAMES.map((name, i) => {
   const mm = String(i + 1).padStart(2, "0");
-  return { value: `${CURRENT_YEAR}-${mm}`, label: `${name} ${CURRENT_YEAR}` };
+  return { value: mm, label: name };
 });
 
 // Mappatura stati -> etichetta + variante badge
