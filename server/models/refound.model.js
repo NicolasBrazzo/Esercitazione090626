@@ -1,6 +1,6 @@
 const supabase = require("../config/db_connection");
 
-const TABLE_NAME = "RSA_RefoundRequest";
+const TABLE_NAME = "RSA_RefundRequest";
 
 // ONLY ADMIN
 // Find All Refound Requests (with optional filters)
@@ -15,10 +15,15 @@ const findAllRefoundRequests = async (filters = {}) => {
     query = query.eq("employee_id", filters.employee_id);
   }
 
+  if (filters.category_id) {
+    query = query.eq("category_id", filters.category_id);
+  }
+
   const { data, error } = await query;
 
   if (error) {
-    throw new Error("DATABASE_FIND_ALL_REFUND_REQUESTS_ERROR");
+    console.error("FIND ALL REFUND REQUESTS SUPABASE ERROR:", error);
+    throw new Error(error.message || "DATABASE_FIND_ALL_REFUND_REQUESTS_ERROR");
   }
   return data;
 };

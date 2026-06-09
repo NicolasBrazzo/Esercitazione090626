@@ -6,11 +6,9 @@ import { Dashboard } from "./pages/Dashboard.jsx";
 import { AppLayout } from "./layouts/AppLayout.jsx";
 import { ToastContainer } from "react-toastify";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Clients } from "./pages/Clients.jsx";
-import { Deliveries } from "./pages/Deliveries.jsx";
 import { Users } from "./pages/Users.jsx";
-import { DeliveryTrack } from "./pages/DeliveryTrack.jsx";
 import { Register } from "./pages/Register.jsx";
+import { Requests } from "./pages/Requests.jsx";
 
 const queryClient = new QueryClient();
 
@@ -23,13 +21,11 @@ function App() {
             <Routes>
               <Route path="/" element={<Login />} />
               <Route path="/register" element={<Register />} />
-              <Route path="/delivery-track" element={<DeliveryTrack />} />
               <Route element={<PrivateRoute />}>
                 <Route element={<AppLayout />}>
                   <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/clients" element={<Clients />} />
-                  <Route path="/deliveries" element={<Deliveries />} /> 
-                  <Route path="/users" element={<Users />} /> 
+                  <Route path="/requests" element={<Requests />} />
+                  <Route path="/users" element={<Users />} />
                 </Route>
               </Route>
             </Routes>

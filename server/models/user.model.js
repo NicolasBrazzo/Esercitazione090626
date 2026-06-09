@@ -8,7 +8,8 @@ const findAllUsers = async () => {
     .from(TABLE_NAME)
     .select("id, name, surname, email, isAdmin");
   if (error) {
-    throw new Error("DATABASE_FIND_ALL_USERS_ERROR");
+    console.error("FIND ALL USERS SUPABASE ERROR:", error);
+    throw new Error(error.message || "DATABASE_FIND_ALL_USERS_ERROR");
   }
   return data;
 };
