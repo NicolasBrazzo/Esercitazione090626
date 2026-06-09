@@ -82,7 +82,7 @@ const validateRequestFields = async ({
 // GET / - elenco richieste con filtri
 router.get("/", protect, async (req, res) => {
   try {
-    const { status, category_id, from, to, employee_id } = req.query;
+    const { status, category_id, from, to, employee_id, mese } = req.query;
 
     if (status && !VALID_STATUSES.includes(status)) {
       return res.status(400).json({
@@ -101,6 +101,13 @@ router.get("/", protect, async (req, res) => {
     }
 
     let requests = await findAllRefoundRequests(filters);
+
+    // Filtro per mese (YYYY-MM) sulla data della spesa
+    if (mese) {
+      requests = requests.filter(
+        (r) => r.expense_date && String(r.expense_date).slice(0, 7) === mese
+      );
+    }
 
     // Filtro per intervallo di date (YYYY-MM-DD) sulla data della spesa
     if (from || to) {

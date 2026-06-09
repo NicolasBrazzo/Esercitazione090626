@@ -1,13 +1,20 @@
 import { useState } from "react";
-import { PackageCheck, ShoppingCart, LogOut } from "lucide-react";
+import {
+  LayoutDashboard,
+  ReceiptText,
+  Users,
+  BarChart3,
+  ShoppingCart,
+  LogOut,
+} from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { LayoutDashboard, User } from "lucide-react";
+
 const MENU_ITEMS = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
-  { icon: LayoutDashboard, label: "Richieste", path: "/requests" },
-  { icon: User, label: "Utenti", path: "/users" },
-  { icon: PackageCheck, label: "Statistiche", path: "/stats" },
+  { icon: ReceiptText, label: "Richieste", path: "/requests" },
+  { icon: Users, label: "Utenti", path: "/users" },
+  { icon: BarChart3, label: "Statistiche", path: "/stats" },
 ];
 
 export const Sidebar = () => {

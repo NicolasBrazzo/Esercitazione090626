@@ -33,6 +33,14 @@ import {
   settleRequest,
 } from "../services/requestsService";
 import { fetchCategories } from "../services/categoriesService";
+import { MONTH_NAMES } from "../constants";
+
+// Option dei 12 mesi dell'anno corrente nel formato richiesto dal backend (YYYY-MM)
+const CURRENT_YEAR = new Date().getFullYear();
+const MONTH_OPTIONS = MONTH_NAMES.map((name, i) => {
+  const mm = String(i + 1).padStart(2, "0");
+  return { value: `${CURRENT_YEAR}-${mm}`, label: `${name} ${CURRENT_YEAR}` };
+});
 
 // Mappatura stati -> etichetta + variante badge
 const STATUS_META = {
@@ -288,12 +296,8 @@ export const Requests = () => {
     status: "",
     category_id: "",
     employee_id: "",
-    from: "",
-    to: "",
+    mese: "",
   });
-
-  // Bozza dell'intervallo date: applicata solo premendo "Cerca"
-  const [dateRange, setDateRange] = useState({ from: "", to: "" });
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
@@ -364,29 +368,13 @@ export const Requests = () => {
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleDateRangeChange = (e) => {
-    const { name, value } = e.target;
-    setDateRange((prev) => ({ ...prev, [name]: value }));
-  };
-
-  // Intervallo non valido: data iniziale successiva alla finale
-  const invalidDateRange =
-    dateRange.from && dateRange.to && dateRange.from > dateRange.to;
-
-  const applyDateRange = () => {
-    if (invalidDateRange) return;
-    setFilters((prev) => ({ ...prev, from: dateRange.from, to: dateRange.to }));
-  };
-
   const resetFilters = () => {
     setFilters({
       status: "",
       category_id: "",
       employee_id: "",
-      from: "",
-      to: "",
+      mese: "",
     });
-    setDateRange({ from: "", to: "" });
   };
 
   const invalidate = () =>
@@ -523,6 +511,24 @@ export const Requests = () => {
           </Select>
         </div>
 
+        <div className="space-y-1.5">
+          <Label htmlFor="filter-month">Mese</Label>
+          <Select
+            id="filter-month"
+            name="mese"
+            value={filters.mese}
+            onChange={handleFilterChange}
+            className="w-44"
+          >
+            <option value="">Tutti</option>
+            {MONTH_OPTIONS.map((m) => (
+              <option key={m.value} value={m.value}>
+                {m.label}
+              </option>
+            ))}
+          </Select>
+        </div>
+
         {isAdmin && (
           <div className="space-y-1.5">
             <Label htmlFor="filter-employee">Dipendente</Label>
@@ -546,47 +552,6 @@ export const Requests = () => {
         <Button variant="outline" size="sm" onClick={resetFilters}>
           Azzera filtri
         </Button>
-      </div>
-
-      {/* Filtro per intervallo di date (applicato con "Cerca") */}
-      <div className="space-y-2 rounded-lg border bg-card p-4 shadow-sm">
-        <p className="text-sm font-medium">Filtra per periodo</p>
-        <div className="flex flex-wrap items-end gap-3">
-          <div className="space-y-1.5">
-            <Label htmlFor="filter-from">Dal</Label>
-            <Input
-              id="filter-from"
-              type="date"
-              name="from"
-              value={dateRange.from}
-              max={dateRange.to || undefined}
-              onChange={handleDateRangeChange}
-              className="w-44"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="filter-to">Al</Label>
-            <Input
-              id="filter-to"
-              type="date"
-              name="to"
-              value={dateRange.to}
-              min={dateRange.from || undefined}
-              onChange={handleDateRangeChange}
-              className="w-44"
-            />
-          </div>
-
-          <Button size="sm" onClick={applyDateRange} disabled={invalidDateRange}>
-            Cerca
-          </Button>
-        </div>
-        {invalidDateRange && (
-          <p className="text-sm text-destructive">
-            La data iniziale non può essere successiva alla data finale.
-          </p>
-        )}
       </div>
 
       {isLoading && <Loader />}
@@ -755,22 +720,22 @@ export const Requests = () => {
                           <>
                             <Button
                               variant="ghost"
-                              size="sm"
+                              size="icon-sm"
                               title="Approva"
                               onClick={() => handleApprove(request)}
                             >
-                              <Check className="text-green-600" /> Approva
+                              <Check className="text-green-600" />
                             </Button>
                             <Button
-                              variant="ghost"
-                              size="sm"
+                              variant="destructive"
+                              size="icon-sm"
                               title="Rifiuta"
                               onClick={() => {
                                 setRejectError(null);
                                 setRejectingItem(request);
                               }}
                             >
-                              <X className="text-destructive" /> Rifiuta
+                              <X />
                             </Button>
                           </>
                         )}
@@ -778,11 +743,11 @@ export const Requests = () => {
                         {isAdmin && request.status === "approvata" && (
                           <Button
                             variant="ghost"
-                            size="sm"
+                            size="icon-sm"
                             title="Liquida"
                             onClick={() => handleSettle(request)}
                           >
-                            <Wallet className="text-blue-600" /> Liquida
+                            <Wallet className="text-blue-600" />
                           </Button>
                         )}
 
