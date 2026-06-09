@@ -1,10 +1,12 @@
 const supabase = require("../config/db_connection");
 
+const TABLE_NAME = "RSA_Users";
+
 // get all users 
 const findAllUsers = async () => {
   const { data, error } = await supabase
-    .from("ECE_Users")
-    .select("id, email, isAdmin");
+    .from(TABLE_NAME)
+    .select("id, name, surname, email, isAdmin");
   if (error) {
     throw new Error("DATABASE_FIND_ALL_USERS_ERROR");
   }
@@ -12,11 +14,13 @@ const findAllUsers = async () => {
 };
 
 // create new user
-const createNewUser = async ( email, hashedPassword, isAdmin) => {
+const createNewUser = async ( name, surname, email, hashedPassword, isAdmin) => {
   const { data, error } = await supabase
-    .from("ECE_Users")
+    .from(TABLE_NAME)
     .insert([
       {
+        name,
+        surname,
         email,
         password: hashedPassword,
         isAdmin,
@@ -35,7 +39,7 @@ const createNewUser = async ( email, hashedPassword, isAdmin) => {
 // edit user by id
 const updateUserById = async (id, userData) => {
   const { data, error } = await supabase
-    .from("ECE_Users")
+    .from(TABLE_NAME)
     .update(userData)
     .eq("id", id)
     .select()
@@ -51,7 +55,7 @@ const updateUserById = async (id, userData) => {
 // delete user by id
 const deleteUserById = async (id) => {
   const { data, error } = await supabase
-    .from("ECE_Users")
+    .from(TABLE_NAME)
     .delete()
     .eq("id", id)
     .select()
@@ -67,7 +71,7 @@ const deleteUserById = async (id) => {
 // find user by email
 const findUserByEmail = async (email) => {
   const { data, error } = await supabase
-    .from("ECE_Users")
+    .from(TABLE_NAME)
     .select("*")
     .eq("email", email)
     .maybeSingle();   // .single genera un errore se non trova righe!
@@ -82,7 +86,7 @@ const findUserByEmail = async (email) => {
 // find user by id
 const findUserById = async (id) => {
   const { data, error } = await supabase
-    .from("ECE_Users")
+    .from(TABLE_NAME)
     .select("*")
     .eq("id", id)
     .maybeSingle();
@@ -93,8 +97,6 @@ const findUserById = async (id) => {
 
   return data;
 };
-
-
 
 module.exports = {
   createNewUser,

@@ -10,6 +10,7 @@ import { Clients } from "./pages/Clients.jsx";
 import { Deliveries } from "./pages/Deliveries.jsx";
 import { Users } from "./pages/Users.jsx";
 import { DeliveryTrack } from "./pages/DeliveryTrack.jsx";
+import { Register } from "./pages/Register.jsx";
 
 const queryClient = new QueryClient();
 
@@ -21,6 +22,7 @@ function App() {
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Login />} />
+              <Route path="/register" element={<Register />} />
               <Route path="/delivery-track" element={<DeliveryTrack />} />
               <Route element={<PrivateRoute />}>
                 <Route element={<AppLayout />}>

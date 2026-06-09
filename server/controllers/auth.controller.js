@@ -2,7 +2,9 @@ const express = require("express");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-const { findUserByEmail } = require("../models/user.model");
+const { findUserByEmail, createNewUser } = require("../models/user.model");
+const { validateEmail } = require("../utils/validateEmail");
+const { validatePassword } = require("../utils/validatePassword");
 const protect = require("../middleware/auth");
 
 const {
@@ -45,6 +47,7 @@ router.post("/login", async (req, res) => {
     const token = jwt.sign(
       {
         sub: user.id,
+        name: user.name,
         email: user.email,
         isAdmin: user.isAdmin
       },
@@ -66,6 +69,73 @@ router.post("/login", async (req, res) => {
     });
   }
 });
+
+router.post("/register", async (req, res) => {
+  try {
+    const { name, surname, email, password, repeatPassword, isAdmin } = req.body;
+
+    // Validazione email
+    if (!validateEmail(email)) {
+      return res.status(400).json({
+        ok: false,
+        error: "Formato email non valido: deve essere nel formato testo@dominio.tld",
+      });
+    }
+
+    // Validazione password
+    const passwordErrors = validatePassword(password);
+    const repeatPasswordErrors = validatePassword(repeatPassword);
+    if (passwordErrors.length > 0) {
+      return res.status(400).json({
+        ok: false,
+        error: passwordErrors,
+      });
+    }
+    if(repeatPasswordErrors.length > 0) {
+      return res.status(400).json({
+        ok: false,
+        error: repeatPasswordErrors,
+      });
+    }
+
+    // Controllo seconda password   
+    if (password !== repeatPassword) {
+      return res.status(400).json({
+        ok: false,
+        error: "Le password non corrispondono",
+      });
+    }
+
+    const existingUser = await findUserByEmail(email);
+    if (existingUser) {
+      return res.status(409).json({
+        ok: false,
+        error: "Email già in uso",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = await createNewUser(name, surname, email, hashedPassword, isAdmin);
+
+    const token = jwt.sign(
+      {
+        sub: user.id,
+        name: user.name,
+        email: user.email,
+        isAdmin: user.isAdmin,
+      },
+      JWT_SECRET,
+      { expiresIn: JWT_EXPIRES_IN }
+    );
+
+    return res.status(201).json({ ok: true, token, user });
+  } catch (err) {
+    console.error("CREATE USER ERROR:", err);
+    return res.status(500).json({ ok: false, error: "Errore interno del server" });
+  }
+});
+
 
 router.get("/me", protect, (req, res) => {
   return res.json({

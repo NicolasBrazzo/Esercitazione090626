@@ -6,14 +6,19 @@ import Loader from "../components/Loader";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 
-export const Login = () => {
+export const Register = () => {
+  const [name, setName] = useState("");
+  const [surname, setSurname] = useState("");
   const [email, setEmail] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const { login } = useAuth();
+  const { register } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -21,15 +26,15 @@ export const Login = () => {
     setError(null);
     setLoading(true);
 
-    const res = await login({ email: email, password: password });
+    const res = await register({ email: email, password: password, repeatPassword: confirmPassword, isAdmin: isAdmin, name: name, surname: surname });
     if (res.ok) {
-      showSuccess("Login avvenuto con successo");
+      showSuccess("Registrazione avvenuta con successo");
       setLoading(false);
       navigate("/dashboard");
     } else {
       setLoading(false);
       setError(res.message);
-      console.error("Login error");
+      console.error("Registration error");
     }
   };
 
@@ -46,11 +51,33 @@ export const Login = () => {
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center space-y-2">
           <h1 className="text-2xl font-semibold tracking-tight">Rimborso Spese Aziendali</h1>
-          <p className="text-sm text-muted-foreground">Accedi al gestionale</p>
+          <p className="text-sm text-muted-foreground">Registrati al gestionale</p>
         </div>
 
         <div className="rounded-xl border bg-card p-6 shadow-sm space-y-4">
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="name">Nome</Label>
+              <Input
+                id="name"
+                type="text"
+                placeholder="Mario Rossi"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="surname">Cognome</Label>
+              <Input
+                id="surname"
+                type="text"
+                placeholder="Rossi"
+                value={surname}
+                onChange={(e) => setSurname(e.target.value)}
+                required
+              />
+            </div>
             <div className="space-y-1.5">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -74,23 +101,43 @@ export const Login = () => {
                 required
               />
             </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="confirmPassword">Conferma Password</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                placeholder="••••••••"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="isAdmin"
+                checked={isAdmin}
+                onCheckedChange={(checked) => setIsAdmin(checked === true)}
+              />
+              <Label htmlFor="isAdmin">Amministratore</Label>
+            </div>
 
             {error && (
               <p className="text-sm text-destructive font-medium">{error}</p>
             )}
 
             <Button type="submit" className="w-full">
-              Accedi
+              Registrati
             </Button>
           </form>
         </div>
 
         <div className="text-center">
           <Link
-            to="/register"
+            to="/login"
             className="text-sm text-muted-foreground hover:text-foreground transition-colors underline"
           >
-            Registrati
+            Login
           </Link>
         </div>
       </div>
