@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const { findUserByEmail, createNewUser } = require("../models/user.model");
 const { validateEmail } = require("../utils/validateEmail");
 const { validatePassword } = require("../utils/validatePassword");
+const { validateName } = require("../utils/validateName");
 const protect = require("../middleware/auth");
 
 const {
@@ -74,6 +75,22 @@ router.post("/register", async (req, res) => {
   try {
     const { name, surname, email, password, repeatPassword, isAdmin } = req.body;
 
+    // Validazione nome e cognome
+    const nameErrors = validateName(name, "Il nome");
+    if (nameErrors.length > 0) {
+      return res.status(400).json({
+        ok: false,
+        error: nameErrors,
+      });
+    }
+    const surnameErrors = validateName(surname, "Il cognome");
+    if (surnameErrors.length > 0) {
+      return res.status(400).json({
+        ok: false,
+        error: surnameErrors,
+      });
+    }
+
     // Validazione email
     if (!validateEmail(email)) {
       return res.status(400).json({
@@ -116,7 +133,7 @@ router.post("/register", async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await createNewUser(name, surname, email, hashedPassword, isAdmin);
+    const user = await createNewUser(name.trim(), surname.trim(), email, hashedPassword, isAdmin);
 
     const token = jwt.sign(
       {

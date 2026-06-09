@@ -65,7 +65,11 @@ export const AuthProvider = ({ children }) => {
       }
       return { ok: false, message: res.data?.error || "Registration failed" };
     } catch (err) {
-      return { ok: false, message: err.message };
+      const serverError = err.response?.data?.error;
+      const message = Array.isArray(serverError)
+        ? serverError.join(". ")
+        : serverError || err.message;
+      return { ok: false, message };
     }
   };
 

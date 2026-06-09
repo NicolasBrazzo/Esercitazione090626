@@ -24,9 +24,31 @@ export const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+
+    const trimmedName = name.trim();
+    const trimmedSurname = surname.trim();
+    const nameRegex = /^[A-Za-zÀ-ÿ' -]+$/;
+
+    if (trimmedName.length < 2) {
+      setError("Il nome deve contenere almeno 2 caratteri");
+      return;
+    }
+    if (!nameRegex.test(trimmedName)) {
+      setError("Il nome può contenere solo lettere, spazi, apostrofi e trattini");
+      return;
+    }
+    if (trimmedSurname.length < 2) {
+      setError("Il cognome deve contenere almeno 2 caratteri");
+      return;
+    }
+    if (!nameRegex.test(trimmedSurname)) {
+      setError("Il cognome può contenere solo lettere, spazi, apostrofi e trattini");
+      return;
+    }
+
     setLoading(true);
 
-    const res = await register({ email: email, password: password, repeatPassword: confirmPassword, isAdmin: isAdmin, name: name, surname: surname });
+    const res = await register({ email: email, password: password, repeatPassword: confirmPassword, isAdmin: isAdmin, name: trimmedName, surname: trimmedSurname });
     if (res.ok) {
       showSuccess("Registrazione avvenuta con successo");
       setLoading(false);
@@ -61,7 +83,7 @@ export const Register = () => {
               <Input
                 id="name"
                 type="text"
-                placeholder="Mario Rossi"
+                placeholder="Mario"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
