@@ -7,6 +7,7 @@ const authRoutes = require("./controllers/auth.controller");
 const refundRoutes = require("./controllers/refund.controller");
 const categoryRoutes = require("./controllers/category.controller");
 const userRoutes = require("./controllers/users.controller");
+const statsRoutes = require("./controllers/stats.controller");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -24,6 +25,7 @@ app.use("/auth", authRoutes);
 app.use("/rimborsi", refundRoutes);
 app.use("/categorie-spesa", categoryRoutes);
 app.use("/users", userRoutes);
+app.use("/statistiche", statsRoutes);
 
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "ok" });

@@ -27,7 +27,7 @@ export const AuthProvider = ({ children }) => {
       if (res.data.user) {
         const u = res.data.user;
         // Da modificare
-        setUser({ id: u.sub, email: u.email, isAdmin: u.isAdmin });
+        setUser({ id: u.sub, name: u.name, email: u.email, isAdmin: u.isAdmin });
       } else {
         localStorage.removeItem("token");
         setUser(null);

@@ -1,6 +1,16 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { Edit, Trash, Check, X, Wallet } from "lucide-react";
+import {
+  Edit,
+  Trash,
+  Check,
+  X,
+  Wallet,
+  ChevronUp,
+  ChevronDown,
+  ChevronsUpDown,
+} from "lucide-react";
+import { sortByField } from "../utils/sortHelpers";
 
 import Loader from "../components/Loader";
 import Modal from "@/components/Modal";
@@ -52,6 +62,13 @@ const formatAmount = (value) =>
   new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" }).format(
     Number(value) || 0,
   );
+
+const SortIcon = ({ field, sortField, sortDirection }) => {
+  if (sortField !== field) return <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground/50" />;
+  return sortDirection === "asc"
+    ? <ChevronUp className="h-3.5 w-3.5 text-foreground" />
+    : <ChevronDown className="h-3.5 w-3.5 text-foreground" />;
+};
 
 // --- Form di creazione / modifica richiesta -------------------------------
 const RequestForm = ({ initialData, categories, onSubmit, error }) => {
@@ -287,6 +304,29 @@ export const Requests = () => {
 
   const [detailItem, setDetailItem] = useState(null);
 
+  // Ordinamento tabella (escluse colonne Stato e Azioni)
+  const [sortField, setSortField] = useState(null);
+  const [sortDirection, setSortDirection] = useState("desc");
+
+  const SORT_CONFIG = {
+    expense_date: { type: "date" },
+    category_name: { type: "string" },
+    amount: { type: "number" },
+    description: { type: "string" },
+    employee_name: { type: "string" },
+    evaluation_date: { type: "date" },
+    settlement_date: { type: "date" },
+  };
+
+  const handleSort = (field) => {
+    if (sortField !== field) {
+      setSortField(field);
+      setSortDirection("desc");
+      return;
+    }
+    setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+  };
+
   const { data: categories = [] } = useQuery({
     queryKey: ["categories"],
     queryFn: fetchCategories,
@@ -302,6 +342,10 @@ export const Requests = () => {
   });
 
   const hasRequests = requests.length > 0;
+
+  const sortedRequests = sortField
+    ? sortByField(requests, sortField, sortDirection, SORT_CONFIG)
+    : requests;
 
   // Opzioni dipendente per il filtro admin, derivate dalle richieste caricate
   const employeeOptions = useMemo(() => {
@@ -557,21 +601,84 @@ export const Requests = () => {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b bg-muted/50 text-left text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                <th className="px-4 py-3">{REQUEST_COLUMN_LABELS.expense_date}</th>
-                <th className="px-4 py-3">{REQUEST_COLUMN_LABELS.category}</th>
-                <th className="px-4 py-3">{REQUEST_COLUMN_LABELS.amount}</th>
-                <th className="px-4 py-3">{REQUEST_COLUMN_LABELS.description}</th>
+                <th
+                  className="px-4 py-3 cursor-pointer select-none hover:text-foreground transition-colors"
+                  onClick={() => handleSort("expense_date")}
+                  title="Clicca per ordinare per data spesa"
+                >
+                  <span className="inline-flex items-center gap-1.5">
+                    {REQUEST_COLUMN_LABELS.expense_date}
+                    <SortIcon field="expense_date" sortField={sortField} sortDirection={sortDirection} />
+                  </span>
+                </th>
+                <th
+                  className="px-4 py-3 cursor-pointer select-none hover:text-foreground transition-colors"
+                  onClick={() => handleSort("category_name")}
+                  title="Clicca per ordinare per categoria"
+                >
+                  <span className="inline-flex items-center gap-1.5">
+                    {REQUEST_COLUMN_LABELS.category}
+                    <SortIcon field="category_name" sortField={sortField} sortDirection={sortDirection} />
+                  </span>
+                </th>
+                <th
+                  className="px-4 py-3 cursor-pointer select-none hover:text-foreground transition-colors"
+                  onClick={() => handleSort("amount")}
+                  title="Clicca per ordinare per importo"
+                >
+                  <span className="inline-flex items-center gap-1.5">
+                    {REQUEST_COLUMN_LABELS.amount}
+                    <SortIcon field="amount" sortField={sortField} sortDirection={sortDirection} />
+                  </span>
+                </th>
+                <th
+                  className="px-4 py-3 cursor-pointer select-none hover:text-foreground transition-colors"
+                  onClick={() => handleSort("description")}
+                  title="Clicca per ordinare per descrizione"
+                >
+                  <span className="inline-flex items-center gap-1.5">
+                    {REQUEST_COLUMN_LABELS.description}
+                    <SortIcon field="description" sortField={sortField} sortDirection={sortDirection} />
+                  </span>
+                </th>
                 {isAdmin && (
-                  <th className="px-4 py-3">{REQUEST_COLUMN_LABELS.employee}</th>
+                  <th
+                    className="px-4 py-3 cursor-pointer select-none hover:text-foreground transition-colors"
+                    onClick={() => handleSort("employee_name")}
+                    title="Clicca per ordinare per dipendente"
+                  >
+                    <span className="inline-flex items-center gap-1.5">
+                      {REQUEST_COLUMN_LABELS.employee}
+                      <SortIcon field="employee_name" sortField={sortField} sortDirection={sortDirection} />
+                    </span>
+                  </th>
                 )}
                 <th className="px-4 py-3">{REQUEST_COLUMN_LABELS.status}</th>
-                <th className="px-4 py-3">{REQUEST_COLUMN_LABELS.evaluation_date}</th>
-                <th className="px-4 py-3">{REQUEST_COLUMN_LABELS.settlement_date}</th>
+                <th
+                  className="px-4 py-3 cursor-pointer select-none hover:text-foreground transition-colors"
+                  onClick={() => handleSort("evaluation_date")}
+                  title="Clicca per ordinare per data valutazione"
+                >
+                  <span className="inline-flex items-center gap-1.5">
+                    {REQUEST_COLUMN_LABELS.evaluation_date}
+                    <SortIcon field="evaluation_date" sortField={sortField} sortDirection={sortDirection} />
+                  </span>
+                </th>
+                <th
+                  className="px-4 py-3 cursor-pointer select-none hover:text-foreground transition-colors"
+                  onClick={() => handleSort("settlement_date")}
+                  title="Clicca per ordinare per data liquidazione"
+                >
+                  <span className="inline-flex items-center gap-1.5">
+                    {REQUEST_COLUMN_LABELS.settlement_date}
+                    <SortIcon field="settlement_date" sortField={sortField} sortDirection={sortDirection} />
+                  </span>
+                </th>
                 <th className="px-4 py-3">Azioni</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {requests.map((request) => {
+              {sortedRequests.map((request) => {
                 const meta = STATUS_META[request.status] || {
                   label: request.status,
                   variant: "muted",

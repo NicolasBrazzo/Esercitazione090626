@@ -9,6 +9,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Users } from "./pages/Users.jsx";
 import { Register } from "./pages/Register.jsx";
 import { Requests } from "./pages/Requests.jsx";
+import { Stats } from "./pages/Stats.jsx";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +27,7 @@ function App() {
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/requests" element={<Requests />} />
                   <Route path="/users" element={<Users />} />
+                  <Route path="/stats" element={<Stats />} />
                 </Route>
               </Route>
             </Routes>
